@@ -19,10 +19,27 @@
 #include <alloca.h>
 #include <pthread.h>
 #include <fcntl.h>
+#ifndef __SWITCH__
 #include <sys/mman.h> // for mmap / munmap
+#endif
 #include <dirent.h>
 #include <utime.h>
 #include <ctime>
+
+#ifdef __SWITCH__
+
+#ifndef PAGESIZE
+#define PAGESIZE 0x1000
+#endif
+
+#ifndef PATH_MAX
+#define PATH_MAX 1024
+#endif
+
+extern "C" char *SDL_itoa(int value, char *str, int radix);
+extern "C" char *SDL_strupr(char *src);
+
+#endif
 
 #define _LINUX // for GameSpy
 
@@ -37,9 +54,17 @@
 
 #define _copysign copysign
 
+#undef _cdecl
+#undef _stdcall
+#undef _fastcall
+
 #define _cdecl //__attribute__((cdecl))
 #define _stdcall //__attribute__((stdcall))
 #define _fastcall //__attribute__((fastcall))
+
+#undef __cdecl
+#undef __stdcall
+#undef __fastcall
 
 #define __cdecl
 #define __stdcall
@@ -71,7 +96,11 @@ inline char* _strupr_l(char* str, locale_t loc)
 
 #define __except(X) catch(X)
 
+#ifdef XR_PLATFORM_SWITCH
+#define GetCurrentProcessId() (1)
+#else
 #define GetCurrentProcessId getpid
+#endif
 #define GetCurrentThreadId pthread_self
 
 inline void Sleep(int ms)
@@ -146,6 +175,17 @@ inline void convert_path_separators(char * path)
 {
     while (char* sep = strchr(path, '\\')) *sep = '/';
 }
+
+#ifdef __SWITCH__
+inline char *strdup(const char *src)
+{
+    const int len = strlen(src);
+    char *out = (char *)malloc(len + 1);
+    if (!out) return nullptr;
+    memcpy(out, src, len + 1);
+    return out;
+}
+#endif
 
 inline int xr_unlink(const char *path)
 {
@@ -280,10 +320,22 @@ typedef dirent DirEntryType;
 #define _O_CREAT O_CREAT
 #define _S_IWRITE S_IWRITE
 #define _S_IREAD S_IREAD
-#define _O_BINARY 0
+#define _O_BINARY O_BINARY
+#ifndef O_BINARY
 #define O_BINARY 0
+#endif
+#ifndef O_SEQUENTIAL
 #define O_SEQUENTIAL 0
+#endif
 #define SH_DENYWR 0
+
+#ifndef S_IREAD
+#define S_IREAD S_IRUSR
+#endif
+
+#ifndef S_IWRITE
+#define S_IWRITE S_IWUSR
+#endif
 
 #define itoa SDL_itoa
 #define _itoa_s SDL_itoa

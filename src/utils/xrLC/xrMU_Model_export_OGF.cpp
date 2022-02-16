@@ -94,8 +94,8 @@ void export_ogf(xrMU_Reference& mu_reference)
             {
                 Fvector ptPos = F.v[lv].v;
 
-                base_color_c _C;
-                float _N = 0;
+                base_color_c _CC;
+                float _CN = 0;
 
                 for (u32 v_it = 0; v_it < model->m_vertices.size(); v_it++)
                 {
@@ -110,14 +110,14 @@ void export_ogf(xrMU_Reference& mu_reference)
                     float oA = 1 / (1 + 100 * oD * oD);
                     vC = (baseC);
                     vC.mul(oA);
-                    _C.add(vC);
-                    _N += oA;
+                    _CC.add(vC);
+                    _CN += oA;
                 }
 
-                float s = 1 / (_N + EPS);
-                _C.mul(s);
-                F.v[lv].c_rgb_hemi = color_rgba(u8_clr(_C.rgb.x), u8_clr(_C.rgb.y), u8_clr(_C.rgb.z), u8_clr(_C.hemi));
-                F.v[lv].c_sun = u8_clr(_C.sun);
+                float s = 1 / (_CN + EPS);
+                _CC.mul(s);
+                F.v[lv].c_rgb_hemi = color_rgba(u8_clr(_CC.rgb.x), u8_clr(_CC.rgb.y), u8_clr(_CC.rgb.z), u8_clr(_CC.hemi));
+                F.v[lv].c_sun = u8_clr(_CC.sun);
             }
         }
     }

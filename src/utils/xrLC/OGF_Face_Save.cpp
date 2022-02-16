@@ -66,7 +66,7 @@ D3DVERTEXELEMENT9 x_decl_vert[] = // 12
 struct x_vert
 {
     Fvector3 P;
-    x_vert(Fvector3 _P) { P = _P; }
+    x_vert(Fvector3 _PP) { P = _PP; }
 };
 struct r1v_lmap
 {
@@ -77,17 +77,17 @@ struct r1v_lmap
     s16 tc0x, tc0y;
     s16 tc1x, tc1y;
 
-    r1v_lmap(Fvector3 _P, Fvector _N, base_basis _T, base_basis _B, base_color _CC, Fvector2 tc_base, Fvector2 tc_lmap)
+    r1v_lmap(Fvector3 _PP, Fvector _NN, base_basis _T, base_basis _BB, base_color _CC, Fvector2 tc_base, Fvector2 tc_lmap)
     {
-        base_color_c _C;
-        _CC._get(_C);
-        _N.normalize();
+        base_color_c _CC;
+        _CC._get(_CC);
+        _NN.normalize();
         std::pair<s16, u8> tc_u = s24_tc_base(tc_base.x);
         std::pair<s16, u8> tc_v = s24_tc_base(tc_base.y);
-        P = _P;
-        N = u8_vec4(_N, u8_clr(_C.hemi));
+        P = _PP;
+        N = u8_vec4(_NN, u8_clr(_CC.hemi));
         T = u8_vec4(_T, tc_u.second);
-        B = u8_vec4(_B, tc_v.second);
+        B = u8_vec4(_BB, tc_v.second);
         tc0x = tc_u.first;
         tc0y = tc_v.first;
         tc1x = s16_tc_lmap(tc_lmap.x);
@@ -103,18 +103,18 @@ struct r1v_vert
     u32 C;
     s16 tc0x, tc0y;
 
-    r1v_vert(Fvector3 _P, Fvector _N, base_basis _T, base_basis _B, base_color _CC, Fvector2 tc_base)
+    r1v_vert(Fvector3 _PP, Fvector _NN, base_basis _T, base_basis _BB, base_color _CC, Fvector2 tc_base)
     {
-        base_color_c _C;
-        _CC._get(_C);
-        _N.normalize();
+        base_color_c _CC;
+        _CC._get(_CC);
+        _NN.normalize();
         std::pair<s16, u8> tc_u = s24_tc_base(tc_base.x);
         std::pair<s16, u8> tc_v = s24_tc_base(tc_base.y);
-        P = _P;
-        N = u8_vec4(_N, u8_clr(_C.hemi));
+        P = _PP;
+        N = u8_vec4(_NN, u8_clr(_CC.hemi));
         T = u8_vec4(_T, tc_u.second);
-        B = u8_vec4(_B, tc_v.second);
-        C = color_rgba(u8_clr(_C.rgb.x), u8_clr(_C.rgb.y), u8_clr(_C.rgb.z), u8_clr(_C.sun));
+        B = u8_vec4(_BB, tc_v.second);
+        C = color_rgba(u8_clr(_CC.rgb.x), u8_clr(_CC.rgb.y), u8_clr(_CC.rgb.z), u8_clr(_CC.sun));
         tc0x = tc_u.first;
         tc0y = tc_v.first;
     }

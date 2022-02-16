@@ -171,10 +171,10 @@ struct vertHW_1W
 {
     static_assert(std::is_same_v<TVal, float> || std::is_same_v<TVal, s16>, "Only float and s16 are supported");
 
-    TVal _P[4];
+    TVal _TP[4];
     u32 _N_I;
     u32 _T;
-    u32 _B;
+    u32 _TB;
     TVal _tc[2];
 
     void set(const Fvector3& P, Fvector3 N, Fvector3 T, Fvector3 B, const Fvector2& tc, int index)
@@ -182,13 +182,13 @@ struct vertHW_1W
         N.normalize_safe();
         T.normalize_safe();
         B.normalize_safe();
-        q_P(_P[0], P.x);
-        q_P(_P[1], P.y);
-        q_P(_P[2], P.z);
-        _P[3] = TVal(1);
+        q_P(_TP[0], P.x);
+        q_P(_TP[1], P.y);
+        q_P(_TP[2], P.z);
+        _TP[3] = TVal(1);
         _N_I = color_rgba(q_N(N.x), q_N(N.y), q_N(N.z), u8(index));
         _T = color_rgba(q_N(T.x), q_N(T.y), q_N(T.z), 0);
-        _B = color_rgba(q_N(B.x), q_N(B.y), q_N(B.z), 0);
+        _TB = color_rgba(q_N(B.x), q_N(B.y), q_N(B.z), 0);
         q_tc(_tc[0], tc.x);
         q_tc(_tc[1], tc.y);
     }
@@ -207,9 +207,9 @@ struct vertHW_1W
 
     void get_pos(Fvector& p) const
     {
-        p.x = u_P(_P[0]);
-        p.y = u_P(_P[1]);
-        p.z = u_P(_P[2]);
+        p.x = u_P(_TP[0]);
+        p.y = u_P(_TP[1]);
+        p.z = u_P(_TP[2]);
     }
 };
 
@@ -218,10 +218,10 @@ struct vertHW_2W
 {
     static_assert(std::is_same_v<TVal, float> || std::is_same_v<TVal, s16>, "Only float and s16 are supported");
 
-    TVal _P[4];
+    TVal _TP[4];
     u32 _N_w;
     u32 _T;
-    u32 _B;
+    u32 _TB;
     TVal _tc_i[4];
 
     void set(const Fvector3& P, Fvector3 N, Fvector3 T, Fvector3 B, const Fvector2& tc,
@@ -230,13 +230,13 @@ struct vertHW_2W
         N.normalize_safe();
         T.normalize_safe();
         B.normalize_safe();
-        q_P(_P[0], P.x);
-        q_P(_P[1], P.y);
-        q_P(_P[2], P.z);
-        _P[3] = TVal(1);
+        q_P(_TP[0], P.x);
+        q_P(_TP[1], P.y);
+        q_P(_TP[2], P.z);
+        _TP[3] = TVal(1);
         _N_w = color_rgba(q_N(N.x), q_N(N.y), q_N(N.z), u8(clampr(iFloor(w * 255.f + .5f), 0, 255)));
         _T = color_rgba(q_N(T.x), q_N(T.y), q_N(T.z), 0);
-        _B = color_rgba(q_N(B.x), q_N(B.y), q_N(B.z), 0);
+        _TB = color_rgba(q_N(B.x), q_N(B.y), q_N(B.z), 0);
         q_tc(_tc_i[0], tc.x);
         q_tc(_tc_i[1], tc.y);
         _tc_i[2] = s16(index0);
@@ -255,9 +255,9 @@ struct vertHW_2W
 
     void get_pos(Fvector& p) const
     {
-        p.x = u_P(_P[0]);
-        p.y = u_P(_P[1]);
-        p.z = u_P(_P[2]);
+        p.x = u_P(_TP[0]);
+        p.y = u_P(_TP[1]);
+        p.z = u_P(_TP[2]);
     }
 
     void get_pos_bones(Fvector& p, CKinematics* Parent) const
@@ -278,7 +278,7 @@ struct vertHW_3W
 {
     static_assert(std::is_same_v<TVal, float> || std::is_same_v<TVal, s16>, "Only float and s16 are supported");
 
-    TVal _P[4];
+    TVal _TP[4];
     u32 _N_w;
     u32 _T_w;
     u32 _B_i;
@@ -291,10 +291,10 @@ struct vertHW_3W
         N.normalize_safe();
         T.normalize_safe();
         B.normalize_safe();
-        q_P(_P[0], P.x);
-        q_P(_P[1], P.y);
-        q_P(_P[2], P.z);
-        _P[3] = TVal(1);
+        q_P(_TP[0], P.x);
+        q_P(_TP[1], P.y);
+        q_P(_TP[2], P.z);
+        _TP[3] = TVal(1);
         _N_w = color_rgba(q_N(N.x), q_N(N.y), q_N(N.z), u8(clampr(iFloor(w0 * 255.f + .5f), 0, 255)));
         _T_w = color_rgba(q_N(T.x), q_N(T.y), q_N(T.z), u8(clampr(iFloor(w1 * 255.f + .5f), 0, 255)));
         _B_i = color_rgba(q_N(B.x), q_N(B.y), q_N(B.z), u8(index2));
@@ -328,9 +328,9 @@ struct vertHW_3W
 
     void get_pos(Fvector& p) const
     {
-        p.x = u_P(_P[0]);
-        p.y = u_P(_P[1]);
-        p.z = u_P(_P[2]);
+        p.x = u_P(_TP[0]);
+        p.y = u_P(_TP[1]);
+        p.z = u_P(_TP[2]);
     }
 
     void get_pos_bones(Fvector& p, CKinematics* Parent) const
@@ -361,7 +361,7 @@ struct vertHW_4W
 {
     static_assert(std::is_same_v<TVal, float> || std::is_same_v<TVal, s16>, "Only float and s16 are supported");
 
-    TVal _P[4];
+    TVal _TP[4];
     u32 _N_w;
     u32 _T_w;
     u32 _B_w;
@@ -375,10 +375,10 @@ struct vertHW_4W
         N.normalize_safe();
         T.normalize_safe();
         B.normalize_safe();
-        q_P(_P[0], P.x);
-        q_P(_P[1], P.y);
-        q_P(_P[2], P.z);
-        _P[3] = TVal(1);
+        q_P(_TP[0], P.x);
+        q_P(_TP[1], P.y);
+        q_P(_TP[2], P.z);
+        _TP[3] = TVal(1);
         _N_w = color_rgba(q_N(N.x), q_N(N.y), q_N(N.z), u8(clampr(iFloor(w0 * 255.f + .5f), 0, 255)));
         _T_w = color_rgba(q_N(T.x), q_N(T.y), q_N(T.z), u8(clampr(iFloor(w1 * 255.f + .5f), 0, 255)));
         _B_w = color_rgba(q_N(B.x), q_N(B.y), q_N(B.z), u8(clampr(iFloor(w2 * 255.f + .5f), 0, 255)));
@@ -417,9 +417,9 @@ struct vertHW_4W
 
     void get_pos(Fvector& p) const
     {
-        p.x = u_P(_P[0]);
-        p.y = u_P(_P[1]);
-        p.z = u_P(_P[2]);
+        p.x = u_P(_TP[0]);
+        p.y = u_P(_TP[1]);
+        p.z = u_P(_TP[2]);
     }
 
     void get_pos_bones(Fvector& p, CKinematics* Parent) const

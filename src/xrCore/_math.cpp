@@ -33,6 +33,10 @@ typedef unsigned int fpu_control_t __attribute__((__mode__(__HI__)));
 #include <stdint.h>
 #include <string.h>
 #include <iostream>
+#elif defined(XR_PLATFORM_SWITCH)
+extern "C" {
+#include <switch/kernel/svc.h>
+}
 #endif
 #include <thread>
 #include "SDL.h"
@@ -205,6 +209,8 @@ XRCORE_API u32 GetCurrentCPU()
     return GetCurrentProcessorNumber();
 #elif defined(XR_PLATFORM_LINUX)
     return static_cast<u32>(sched_getcpu());
+#elif defined(XR_PLATFORM_SWITCH)
+    return svcGetCurrentProcessorNumber();
 #else
     return 0;
 #endif

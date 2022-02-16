@@ -149,7 +149,7 @@ void CTextureDescrMngr::LoadTHM(LPCSTR initial, bool listTHM)
         FS.update_path(fn, initial, it.name.c_str());
         IReader* F = FS.r_open(fn);
 
-#ifdef XR_PLATFORM_LINUX
+#if defined(XR_PLATFORM_LINUX) || defined(XR_PLATFORM_SWITCH)
         if (nullptr == F)
             FATAL_F("Failed to open file (upper register?): %s", it.name.c_str());
 #endif

@@ -81,6 +81,10 @@ void CHW::CreateDevice(SDL_Window* hWnd)
     // Apply the pixel format to the device context
     SDL_SetWindowDisplayMode(m_window, &mode);
 
+#ifdef XR_PLATFORM_SWITCH
+    SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
+#endif
+
     // Create the context
     m_context = SDL_GL_CreateContext(m_window);
     if (m_context == nullptr)
@@ -95,6 +99,7 @@ void CHW::CreateDevice(SDL_Window* hWnd)
         return;
     }
 
+#ifndef XR_PLATFORM_SWITCH // FIXME: switch-sdl2 supports only one window
     {
         const Uint32 flags = SDL_WINDOW_BORDERLESS | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL;
 
@@ -105,11 +110,15 @@ void CHW::CreateDevice(SDL_Window* hWnd)
 
         // Create helper context
         m_helper_context = SDL_GL_CreateContext(m_helper_window);
-        R_ASSERT3(m_helper_context, "Cannot create OpenGL context", SDL_GetError());
+        R_ASSERT3(m_helper_context, "Cannot create helper OpenGL context", SDL_GetError());
 
         // just in case
         SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
     }
+#else
+    m_helper_context = nullptr;
+    m_helper_window = nullptr;
+#endif
 
     if (MakeContextCurrent(IRender::PrimaryContext) != 0)
     {
@@ -118,8 +127,13 @@ void CHW::CreateDevice(SDL_Window* hWnd)
         return;
     }
 
+#ifdef USE_GLAD
+    // initialize glad
+    if (!gladLoadGLLoader(SDL_GL_GetProcAddress))
+#else
     // Initialize OpenGL Extension Wrangler
     if (glewInit() != GLEW_OK)
+#endif
     {
         Msg("Could not initialize glew.");
         return;
@@ -127,7 +141,7 @@ void CHW::CreateDevice(SDL_Window* hWnd)
 
     UpdateVSync();
 
-#ifdef DEBUG
+#if defined(DEBUG)
     CHK_GL(glEnable(GL_DEBUG_OUTPUT));
     CHK_GL(glDebugMessageCallback((GLDEBUGPROC)OnDebugCallback, nullptr));
 #endif // DEBUG
@@ -148,7 +162,7 @@ void CHW::CreateDevice(SDL_Window* hWnd)
     Msg("* GPU OpenGL shading language version: %s", ShadingVersion);
     Msg("* GPU OpenGL VTF units: [%d] CTI units: [%d]", iMaxVTFUnits, iMaxCTIUnits);
 
-    ShaderBinarySupported = GLEW_ARB_get_program_binary;
+    ShaderBinarySupported = GLEXT_SUPPORTED(GL_ARB_get_program_binary);
     ComputeShadersSupported = false; // XXX: Implement compute shaders support
 
     Caps.fTarget = D3DFMT_A8R8G8B8;
@@ -193,7 +207,9 @@ void CHW::SetPrimaryAttributes()
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
+#ifndef XR_PLATFORM_SWITCH // on Switch we have to explicitly request 4.1 or it will default to ES2
     if (!strstr(Core.Params, "-no_gl_context"))
+#endif
     {
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
@@ -221,7 +237,11 @@ int CHW::MakeContextCurrent(IRender::RenderContext context) const
         return SDL_GL_MakeCurrent(m_window, m_context);
 
     case IRender::HelperContext:
+#ifdef XR_PLATFORM_SWITCH // FIXME: switch-sdl2 supports only one window
+        return SDL_GL_MakeCurrent(m_window, m_context);
+#else
         return SDL_GL_MakeCurrent(m_helper_window, m_helper_context);
+#endif
 
     default:
         NODEFAULT;

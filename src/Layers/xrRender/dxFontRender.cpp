@@ -94,11 +94,11 @@ void dxFontRender::OnRender(CGameFont& owner)
                 clr2 = clr = PS.c;
                 if (owner.uFlags & CGameFont::fsGradient)
                 {
-                    u32 _R = color_get_R(clr) / 2;
-                    u32 _G = color_get_G(clr) / 2;
-                    u32 _B = color_get_B(clr) / 2;
-                    u32 _A = color_get_A(clr);
-                    clr2 = color_rgba(_R, _G, _B, _A);
+                    u32 _CR = color_get_R(clr) / 2;
+                    u32 _CG = color_get_G(clr) / 2;
+                    u32 _CB = color_get_B(clr) / 2;
+                    u32 _CA = color_get_A(clr);
+                    clr2 = color_rgba(_CR, _CG, _CB, _CA);
                 }
 
 #ifndef USE_DX9 // Vertex shader will cancel a DX9 correction, so make fake offset

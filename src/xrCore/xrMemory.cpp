@@ -8,6 +8,12 @@
 #include <sys/sysinfo.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#elif defined(XR_PLATFORM_SWITCH)
+extern "C" {
+#include <switch/kernel/svc.h>
+extern char *fake_heap_start;
+extern char *fake_heap_end;
+}
 #endif
 
 // On other platforms these options are controlled by CMake
@@ -32,7 +38,7 @@
 // Additional bytes of memory to hide memory problems on Release
 // But for Debug we don't need this if we want to find these problems
 #ifdef NDEBUG
-constexpr size_t xr_reserved_tail = 8;
+constexpr size_t xr_reserved_tail = 16;
 #else
 constexpr size_t xr_reserved_tail = 0;
 #endif
@@ -92,6 +98,11 @@ XRCORE_API void vminfo(size_t* _free, size_t* reserved, size_t* committed)
     *_free = si.freeram * si.mem_unit;
     *reserved = si.bufferram * si.mem_unit;
     *committed = (si.totalram - si.freeram + si.totalswap - si.freeswap) * si.mem_unit;
+#elif defined(XR_PLATFORM_SWITCH)
+    const size_t nx_heapsize = fake_heap_end - fake_heap_start;
+    *_free = nx_heapsize; // TODO
+    *reserved = nx_heapsize;
+    *committed = nx_heapsize;
 #endif
 }
 
@@ -116,6 +127,8 @@ size_t xrMemory::mem_usage()
     struct rusage ru;
     getrusage(RUSAGE_SELF, &ru);
     return (size_t)ru.ru_maxrss;
+#elif defined(XR_PLATFORM_SWITCH)
+    return 0; // TODO
 #endif
 }
 

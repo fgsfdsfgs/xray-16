@@ -234,11 +234,15 @@ void CGamePersistent::OnAppStart()
     });
 #endif
     // load game materials
+#ifdef XR_PLATFORM_SWITCH
+    GMLib.Load(); // we have only one context on Switch
+#else
     const auto& loadMaterials = TaskScheduler->AddTask("GMLib.Load()", [](Task&, void*)
     {
         IRender::ScopedContext context(IRender::HelperContext);
         GMLib.Load();
     });
+#endif
 
     SetupUIStyle();
     GEnv.UI = xr_new<UICore>();
@@ -259,7 +263,9 @@ void CGamePersistent::OnAppStart()
 #ifdef XR_PLATFORM_WINDOWS
     TaskScheduler->Wait(initializeGlobals);
 #endif
+#ifndef XR_PLATFORM_SWITCH
     TaskScheduler->Wait(loadMaterials);
+#endif
     TaskScheduler->Wait(menuCreated);
 }
 
@@ -511,6 +517,8 @@ bool allow_intro()
 {
 #if defined(XR_PLATFORM_WINDOWS)
     if ((0 != strstr(Core.Params, "-nointro")) || g_SASH.IsRunning())
+#elif defined(XR_PLATFORM_SWITCH) // REMOVEME
+    if (1)
 #else
     if (0 != strstr(Core.Params, "-nointro"))
 #endif

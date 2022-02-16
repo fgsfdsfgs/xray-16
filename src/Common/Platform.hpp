@@ -3,6 +3,9 @@
 #if defined(_WIN32)
 #   define XR_PLATFORM_WINDOWS
 #   define _XRAY_PLATFORM_MARKER "Windows"
+#elif defined(__SWITCH__)
+#   define XR_PLATFORM_SWITCH
+#   define _XRAY_PLATFORM_MARKER "Switch"
 #elif defined(__linux__)
 #   define XR_PLATFORM_LINUX
 #   define _XRAY_PLATFORM_MARKER "Linux"
@@ -43,7 +46,7 @@
 
 #if defined(XR_PLATFORM_WINDOWS)
 #include "Common/PlatformWindows.inl"
-#elif defined(XR_PLATFORM_LINUX)
+#elif defined(XR_PLATFORM_LINUX) || defined(XR_PLATFORM_SWITCH)
 #include "Common/PlatformLinux.inl"
 #elif defined(XR_PLATFORM_FREEBSD)
 #include "Common/PlatformBSD.inl"

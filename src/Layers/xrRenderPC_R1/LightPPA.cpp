@@ -28,9 +28,9 @@ void cl_light_PR::setup(R_constant* C)
 }
 void cl_light_C::setup(R_constant* C)
 {
-    Fcolor _C = RImplementation.r1_dlight_light->color;
-    _C.mul_rgb(RImplementation.r1_dlight_scale);
-    RCache.set_c(C, _C.r, _C.g, _C.b, 1.f);
+    Fcolor _CC = RImplementation.r1_dlight_light->color;
+    _CC.mul_rgb(RImplementation.r1_dlight_scale);
+    RCache.set_c(C, _CC.r, _CC.g, _CC.b, 1.f);
 }
 void cl_light_XFORM::setup(R_constant* C) { RCache.set_c(C, RImplementation.r1_dlight_tcgen); }
 //////////////////////////////////////////////////////////////////////////

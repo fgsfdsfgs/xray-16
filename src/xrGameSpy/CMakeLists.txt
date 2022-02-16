@@ -53,12 +53,18 @@ target_include_directories(${PROJECT_NAME}
     ${SDL_INCLUDE_DIRS}
 )
 
+if (NINTENDO_SWITCH)
+    set(EXT_LIBRARIES )
+else()
+    set(EXT_LIBRARIES ${SDL_LIBRARIES})
+endif()
+
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
     xrCore
     xrMiscMath
     GameSpy
-    ${SDL_LIBRARIES}
+    ${EXT_LIBRARIES}
 )
 
 target_compile_definitions(${PROJECT_NAME}

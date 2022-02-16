@@ -10,6 +10,14 @@
 #if defined(XR_PLATFORM_WINDOWS)
 #include "Debug/dxerr.h"
 #endif
+#if defined(XR_PLATFORM_SWITCH)
+extern "C" {
+#include <switch/kernel/svc.h>
+#include <switch/kernel/detect.h>
+extern char *fake_heap_start;
+extern char *fake_heap_end;
+}
+#endif
 #include "Threading/ScopeLock.hpp"
 
 #pragma warning(push)
@@ -177,7 +185,7 @@ Lock xrDebug::dbgHelpLock;
 
 #if defined(XR_PLATFORM_WINDOWS)
 void xrDebug::SetBugReportFile(const char* fileName) { xr_strcpy(BugReportFile, fileName); }
-#elif defined(XR_PLATFORM_LINUX)
+#elif defined(XR_PLATFORM_LINUX) || defined(XR_PLATFORM_SWITCH)
 void xrDebug::SetBugReportFile(const char* fileName) { xr_strcpy(BugReportFile, 0, fileName); }
 #endif
 
@@ -457,6 +465,8 @@ void xrDebug::GatherInfo(char* assertionInfo, size_t bufferSize, const ErrorLoca
         }
         ::free(demangledName);
     }
+#elif defined(XR_PLATFORM_SWITCH)
+    Log("not implemented\n");
 #endif
     FlushLog();
     os_clipboard::copy_to_clipboard(assertionInfo);
@@ -721,8 +731,10 @@ void xrDebug::OnFilesystemInitialized()
 
 bool xrDebug::DebuggerIsPresent()
 {
-#ifdef XR_PLATFORM_WINDOWS
+#if defined(XR_PLATFORM_WINDOWS)
     return IsDebuggerPresent();
+#elif defined(XR_PLATFORM_SWITCH)
+    return detectDebugger();
 #else
     if (ptrace(PTRACE_TRACEME, 0, 0, 0) == -1)
         return true;

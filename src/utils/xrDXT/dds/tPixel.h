@@ -5,6 +5,10 @@
 #include <dds/tVector.h>
 #include <dds/nvErrorCodes.h>
 
+#ifdef __SWITCH__
+#undef _B
+#endif
+
 namespace nv
 {
 // modulo value x between [lo,hi]

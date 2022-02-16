@@ -18,6 +18,10 @@
 #include "xrCore/Threading/ParallelForEach.hpp"
 #endif
 
+#ifdef XR_PLATFORM_SWITCH
+#include "switch_bits.inl"
+#endif
+
 // Always request high performance GPU
 extern "C"
 {
@@ -34,6 +38,7 @@ int entry_point(pcstr commandLine)
     R_ASSERT3(SDL_Init(SDL_INIT_VIDEO) == 0, "Unable to initialize SDL", SDL_GetError());
     SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "0");
 
+#ifndef XR_PLATFORM_SWITCH
     if (!strstr(commandLine, "-nosplash"))
     {
         const bool topmost = !strstr(commandLine, "-splashnotop");
@@ -41,6 +46,7 @@ int entry_point(pcstr commandLine)
         splash::show(topmost);
 #endif
     }
+#endif
 
     if (strstr(commandLine, "-dedicated"))
         GEnv.isDedicatedServer = true;
@@ -122,9 +128,13 @@ int APIENTRY WinMain(HINSTANCE inst, HINSTANCE prevInst, char* commandLine, int 
     }
     return result;
 }
-#elif defined(XR_PLATFORM_LINUX)
+#elif defined(XR_PLATFORM_LINUX) || defined(XR_PLATFORM_SWITCH)
 int main(int argc, char *argv[])
 {
+#ifdef XR_PLATFORM_SWITCH
+    switch_init(argc, argv);
+#endif
+
     int result = EXIT_FAILURE;
 
     try

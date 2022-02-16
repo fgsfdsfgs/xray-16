@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ThreadUtil.h"
 
-#if defined(XR_PLATFORM_LINUX) || defined(XR_PLATFORM_FREEBSD)
+#if defined(XR_PLATFORM_LINUX) || defined(XR_PLATFORM_FREEBSD) || defined(XR_PLATFORM_SWITCH)
 #include <pthread.h>
 #endif
 
@@ -104,7 +104,14 @@ void CloseThreadHandle(ThreadHandle& threadHandle)
         threadHandle = nullptr;
     }
 }
-#elif defined(XR_PLATFORM_LINUX) || defined(XR_PLATFORM_FREEBSD)
+#elif defined(XR_PLATFORM_LINUX) || defined(XR_PLATFORM_FREEBSD) || defined(XR_PLATFORM_SWITCH)
+
+#ifdef XR_PLATFORM_SWITCH
+// no thread names
+#undef pthread_setname_np
+#define pthread_setname_np(x, y) 0
+#endif
+
 ThreadId GetCurrThreadId() { return pthread_self(); }
 
 ThreadHandle GetCurrentThreadHandle() { return pthread_self(); }

@@ -26,7 +26,7 @@
 #include <ode/error.h>
 #include <math.h>
 
-#ifdef XR_PLATFORM_LINUX
+#if defined(XR_PLATFORM_LINUX) || defined(XR_PLATFORM_SWITCH) 
 #include <alloca.h>
 #endif
 

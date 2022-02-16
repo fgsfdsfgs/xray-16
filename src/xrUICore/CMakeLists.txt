@@ -144,6 +144,12 @@ target_include_directories(${PROJECT_NAME}
     ${SDL_INCLUDE_DIRS}
 )
 
+if (NINTENDO_SWITCH)
+    set(EXT_LIBRARIES )
+else()
+    set(EXT_LIBRARIES ${SDL_LIBRARIES})
+endif()
+
 target_link_libraries(xrUICore
     PRIVATE
     xrAPI
@@ -152,7 +158,7 @@ target_link_libraries(xrUICore
     xrMiscMath
     xrCore
     xrLuabind
-    ${SDL_LIBRARIES}
+    ${EXT_LIBRARIES}
 )
 
 if (WIN32)

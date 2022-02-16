@@ -6,6 +6,10 @@ add_subdirectory(OPCODE)
 add_subdirectory(ode)
 #add_subdirectory(NVTT)
 
+if (NINTENDO_SWITCH)
+    add_subdirectory(glad)
+endif()
+
 if (MEMORY_ALLOCATOR STREQUAL "mimalloc")
     set(MI_BUILD_TESTS   OFF)
     set(MI_BUILD_DYNAMIC OFF)

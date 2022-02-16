@@ -32,7 +32,7 @@ void IConsole_Command::InvalidSyntax()
     Msg("~ Invalid syntax in call to '%s'", cName);
     Msg("~ Valid arguments: %s", I);
 
-#if !defined(XR_PLATFORM_LINUX)
+#if !defined(XR_PLATFORM_LINUX) && !defined(XR_PLATFORM_SWITCH)
     g_SASH.OnConsoleInvalidSyntax(false, "~ Invalid syntax in call to '%s'", cName);
     g_SASH.OnConsoleInvalidSyntax(true, "~ Valid arguments: %s", I);
 #endif
@@ -129,12 +129,12 @@ public:
         for (it = Console->Commands.begin(); it != Console->Commands.end(); ++it)
         {
             IConsole_Command& C = *(it->second);
-            TStatus _S;
-            C.GetStatus(_S);
+            TStatus _CS;
+            C.GetStatus(_CS);
             TInfo _I;
             C.Info(_I);
 
-            Msg("%-20s (%-10s) --- %s", C.Name(), _S, _I);
+            Msg("%-20s (%-10s) --- %s", C.Name(), _CS, _I);
         }
         Log("Key: Ctrl + A         === Select all ");
         Log("Key: Ctrl + C         === Copy to clipboard ");
@@ -887,7 +887,7 @@ void CCC_Register()
 #endif
 
     CMD1(CCC_ExclusiveMode, "input_exclusive_mode");
-#if !defined(XR_PLATFORM_LINUX)
+#if !defined(XR_PLATFORM_LINUX) && !defined(XR_PLATFORM_SWITCH)
     extern int g_svTextConsoleUpdateRate;
     CMD4(CCC_Integer, "sv_console_update_rate", &g_svTextConsoleUpdateRate, 1, 100);
 #endif

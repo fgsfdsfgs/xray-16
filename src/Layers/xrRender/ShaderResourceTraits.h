@@ -9,6 +9,7 @@ inline std::pair<GLuint, GLuint> GLCompileShader(pcstr* buffer, size_t size, pcs
     GLint status{};
 
     GLuint shader = glCreateShader(type);
+    if (!shader) Msg("glCreateShader(0x%04x, %s) == 0: 0x%08x", type, name, glGetError());
     R_ASSERT(shader);
     glShaderSource(shader, size, buffer, nullptr);
     glCompileShader(shader);

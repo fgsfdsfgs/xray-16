@@ -16,9 +16,9 @@ struct _sphere
     T R;
 
 public:
-    IC void set(const _vector3<T>& _P, T _R)
+    IC void set(const _vector3<T>& _PP, T _R)
     {
-        P.set(_P);
+        P.set(_PP);
         R = _R;
     }
     IC void set(const _sphere<T>& S)

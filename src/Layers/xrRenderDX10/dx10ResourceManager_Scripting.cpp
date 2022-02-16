@@ -40,7 +40,7 @@ public:
             m_pC = nullptr;
     }
 
-    adopt_dx10sampler(const adopt_dx10sampler& _C) : m_pC(_C.m_pC), m_SI(_C.m_SI)
+    adopt_dx10sampler(const adopt_dx10sampler& _CC) : m_pC(_CC.m_pC), m_SI(_CC.m_SI)
     {
         if (u32(-1) == m_SI)
             m_pC = nullptr;
@@ -53,13 +53,13 @@ class adopt_sampler
     u32 stage; // Sampler index
 
 public:
-    adopt_sampler(CBlender_Compile* _C, u32 _stage) : C(_C), stage(_stage)
+    adopt_sampler(CBlender_Compile* _CC, u32 _stage) : C(_CC), stage(_stage)
     {
         if (u32(-1) == stage)
             C = nullptr;
     }
 
-    adopt_sampler(const adopt_sampler& _C) : C(_C.C), stage(_C.stage)
+    adopt_sampler(const adopt_sampler& _CC) : C(_CC.C), stage(_CC.stage)
     {
         if (u32(-1) == stage)
             C = nullptr;
@@ -203,8 +203,8 @@ class adopt_compiler
     }
 
 public:
-    adopt_compiler(CBlender_Compile* _C, bool& bFirstPass) : C(_C), m_bFirstPass(bFirstPass) { m_bFirstPass = true; }
-    adopt_compiler(const adopt_compiler& _C) : C(_C.C), m_bFirstPass(_C.m_bFirstPass) {}
+    adopt_compiler(CBlender_Compile* _CC, bool& bFirstPass) : C(_CC), m_bFirstPass(bFirstPass) { m_bFirstPass = true; }
+    adopt_compiler(const adopt_compiler& _CC) : C(_CC.C), m_bFirstPass(_CC.m_bFirstPass) {}
     adopt_compiler& _options(int P, bool S)
     {
         C->SetParams(P, S);

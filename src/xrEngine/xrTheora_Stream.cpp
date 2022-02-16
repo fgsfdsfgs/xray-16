@@ -101,7 +101,10 @@ bool CTheoraStream::ParseHeaders()
 
     // fail if theora stream not found in source
     if (0 == header_count)
+    {
+        fprintf(stderr, "Error parsing Theora stream headers; stream not found in file!\n");
         return false;
+    }
 
     // we're expecting more header packets.
     while ((header_count && header_count < 3))

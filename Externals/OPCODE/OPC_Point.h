@@ -12,6 +12,13 @@
 #ifndef __ICEPOINT_H__
 #define __ICEPOINT_H__
 
+#ifdef __SWITCH__
+// these are defined in our ctype.h because fuck you
+#undef _X
+#undef _Y
+#undef _Z
+#endif
+
 enum PointComponent
 {
     _X = 0,

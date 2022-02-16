@@ -111,7 +111,7 @@ static int open_internal(pcstr fn, int& handle)
 {
 #if defined(XR_PLATFORM_WINDOWS)
     return (_sopen_s(&handle, fn, _O_RDONLY | _O_BINARY, _SH_DENYNO, _S_IREAD));
-#elif defined(XR_PLATFORM_LINUX) || defined(XR_PLATFORM_FREEBSD)
+#elif defined(XR_PLATFORM_LINUX) || defined(XR_PLATFORM_FREEBSD) || defined(XR_PLATFORM_SWITCH)
     pstr conv_fn = xr_strdup(fn);
     convert_path_separators(conv_fn);
     handle = open(conv_fn, _O_RDONLY);
@@ -490,6 +490,8 @@ CPackReader::~CPackReader()
     UnmapViewOfFile(base_address);
 #elif defined(XR_PLATFORM_LINUX)
     ::munmap(base_address, Size);
+#elif defined(XR_PLATFORM_SWITCH)
+    xr_free(base_address);
 #endif
 };
 //---------------------------------------------------
@@ -522,6 +524,20 @@ CVirtualFileRW::CVirtualFileRW(pcstr cFileName)
 
     data = (char*)MapViewOfFile(hSrcMap, FILE_MAP_ALL_ACCESS, 0, 0, 0);
     R_ASSERT3(data, cFileName, xrDebug::ErrorToString(GetLastError()));
+#elif defined(XR_PLATFORM_SWITCH)
+    // load the whole file; we'll commit the changes when it's closed
+    pstr conv_path = xr_strdup(cFileName);
+    convert_path_separators(conv_path);
+    hSrcFile = ::open(conv_path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+    xr_free(conv_path);
+    R_ASSERT3(hSrcFile != -1, cFileName, xrDebug::ErrorToString(GetLastError()));
+    struct stat file_info;
+    ::fstat(hSrcFile, &file_info);
+    Size = (int)file_info.st_size;
+    R_ASSERT3(Size, cFileName, xrDebug::ErrorToString(GetLastError()));
+    data = xr_alloc<char>(Size);
+    R_ASSERT3(data, cFileName, xrDebug::ErrorToString(GetLastError()));
+    ::read(hSrcFile, data, Size);
 #elif defined(XR_PLATFORM_LINUX)
     pstr conv_path = xr_strdup(cFileName);
     convert_path_separators(conv_path);
@@ -549,6 +565,13 @@ CVirtualFileRW::~CVirtualFileRW()
     UnmapViewOfFile((void*)data);
     CloseHandle(hSrcMap);
     CloseHandle(hSrcFile);
+#elif defined(XR_PLATFORM_SWITCH)
+    // commit changes
+    ::lseek(hSrcFile, 0, SEEK_SET);
+    ::write(hSrcFile, data, Size);
+    ::close(hSrcFile);
+    xr_free(data);
+    hSrcFile = -1;
 #elif defined(XR_PLATFORM_LINUX)
     ::munmap((void*)data, Size);
     ::close(hSrcFile);
@@ -570,6 +593,21 @@ CVirtualFileReader::CVirtualFileReader(pcstr cFileName)
 
     data = (char*)MapViewOfFile(hSrcMap, FILE_MAP_READ, 0, 0, 0);
     R_ASSERT3(data, cFileName, xrDebug::ErrorToString(GetLastError()));
+#elif defined(XR_PLATFORM_SWITCH)
+    // load the whole file
+    pstr conv_path = xr_strdup(cFileName);
+    convert_path_separators(conv_path);
+    int hSrcFile = ::open(conv_path, O_RDONLY | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+    xr_free(conv_path);
+    R_ASSERT3(hSrcFile != -1, cFileName, xrDebug::ErrorToString(GetLastError()));
+    struct stat file_info;
+    ::fstat(hSrcFile, &file_info);
+    Size = (int)file_info.st_size;
+    R_ASSERT3(Size, cFileName, xrDebug::ErrorToString(GetLastError()));
+    data = xr_alloc<char>(Size);
+    R_ASSERT3(data, cFileName, xrDebug::ErrorToString(GetLastError()));
+    ::read(hSrcFile, data, Size);
+    ::close(hSrcFile); // no need to hold it open, it's read-only
 #elif defined(XR_PLATFORM_LINUX)
     pstr conv_path = xr_strdup(cFileName);
     convert_path_separators(conv_path);
@@ -598,6 +636,8 @@ CVirtualFileReader::~CVirtualFileReader()
     UnmapViewOfFile((void*)data);
     CloseHandle(hSrcMap);
     CloseHandle(hSrcFile);
+#elif defined(XR_PLATFORM_SWITCH)
+    xr_free(data);
 #elif defined(XR_PLATFORM_LINUX)
     ::munmap((void*)data, Size);
     ::close(hSrcFile);

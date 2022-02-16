@@ -48,16 +48,29 @@ group_sources(SRC_FILES)
 
 add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
 
+set(EXT_INCLUDES "${CMAKE_SOURCE_DIR}/Externals/openal/include")
+
+if (NOT NINTENDO_SWITCH)
+    set(EXT_INCLUDES ${EXT_INCLUDES} "${CMAKE_SOURCE_DIR}/Externals/libvorbis/include")
+    set(EXT_INCLUDES ${EXT_INCLUDES} "${CMAKE_SOURCE_DIR}/Externals/libogg/include")
+else()
+    set(EXT_INCLUDES ${EXT_INCLUDES} "$ENV{DEVKITPRO}/portlibs/switch/include")
+endif()
+
+set(EXT_INCLUDES ${EXT_INCLUDES} ${OGG_INCLUDE_DIRS} ${SDL_INCLUDE_DIRS})
+
 target_include_directories(${PROJECT_NAME}
     PRIVATE
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/src/xrEngine
-    ${CMAKE_SOURCE_DIR}/Externals/libvorbis/include
-    ${CMAKE_SOURCE_DIR}/Externals/libogg/include
-    ${CMAKE_SOURCE_DIR}/Externals/openal/include
-    ${OGG_INCLUDE_DIRS}
-    ${SDL_INCLUDE_DIRS}
+    ${EXT_INCLUDES}
 )
+
+if (NINTENDO_SWITCH)
+    set(EXT_LIBRARIES )
+else()
+    set(EXT_LIBRARIES ${OGG_LIBRARIES} openal vorbis vorbisfile)
+endif()
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
@@ -65,10 +78,7 @@ target_link_libraries(${PROJECT_NAME}
     xrMiscMath
     xrAPI
     xrCDB
-    ${OGG_LIBRARIES}
-    openal
-    vorbis
-    vorbisfile
+    ${EXT_LIBRARIES}
 )
 
 target_compile_definitions(${PROJECT_NAME}

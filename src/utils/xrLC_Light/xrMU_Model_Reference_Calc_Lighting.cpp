@@ -83,9 +83,9 @@ T simple_optimize(xr_vector<T>& A, xr_vector<T>& B, T2& _scale, T2& _bias)
 
 void o_test(int iA, int iB, int count, base_color* A, base_color* B, float& C, float& D)
 {
-    xr_vector<double> _A, _B;
-    _A.resize(count);
-    _B.resize(count);
+    xr_vector<double> _VA, _VB;
+    _VA.resize(count);
+    _VB.resize(count);
     for (int it = 0; it < count; it++)
     {
         base_color_c _a;
@@ -94,11 +94,11 @@ void o_test(int iA, int iB, int count, base_color* A, base_color* B, float& C, f
         base_color_c _b;
         B[it]._get(_b);
         float* f_b = (float*)&_b;
-        _A[it] = f_a[iA];
-        _B[it] = f_b[iB];
+        _VA[it] = f_a[iA];
+        _VB[it] = f_b[iB];
     }
     // C=1, D=0;
-    simple_optimize(_A, _B, C, D);
+    simple_optimize(_VA, _VB, C, D);
 }
 
 void xrMU_Reference::calc_lighting()

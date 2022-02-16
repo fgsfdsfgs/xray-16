@@ -150,13 +150,17 @@ void line_edit_control::clear_states()
 void line_edit_control::on_ir_capture()
 {
     SDL_PumpEvents();
+#ifndef XR_PLATFORM_SWITCH // on the switch this call pops up OSK
     SDL_StartTextInput();
+#endif
     SDL_FlushEvents(SDL_TEXTEDITING, SDL_TEXTINPUT);
 }
 
 void line_edit_control::on_ir_release()
 {
+#ifndef XR_PLATFORM_SWITCH
     SDL_StopTextInput();
+#endif
     SDL_FlushEvents(SDL_TEXTEDITING, SDL_TEXTINPUT);
 }
 

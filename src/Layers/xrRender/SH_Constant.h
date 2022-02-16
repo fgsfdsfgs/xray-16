@@ -4,6 +4,10 @@
 
 #include "xrEngine/WaveForm.h"
 
+#ifdef __SWITCH__
+#undef _B
+#endif
+
 class IReader;
 class IWriter;
 

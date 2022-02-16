@@ -182,6 +182,15 @@ void xrCore::Initialize(pcstr _ApplicationName, pcstr commandLine, LogCallback c
         GetModuleFileName(GetModuleHandle("xrCore"), fn, sizeof(fn));
         _splitpath(fn, dr, di, nullptr, nullptr);
         strconcat(sizeof(ApplicationPath), ApplicationPath, dr, di);
+#elif defined(XR_PLATFORM_SWITCH)
+    // game root path is one above NRO path
+    getcwd(ApplicationPath, sizeof(ApplicationPath));
+    char *dir_path = strrchr(ApplicationPath, '/');
+    if (dir_path)
+    {
+        dir_path[1] = 0;
+        Msg("Application path = %s", ApplicationPath);
+    }
 #else
         char* pref_path = nullptr;
         if (strstr(Core.Params, "-fsltx"))
@@ -211,6 +220,11 @@ void xrCore::Initialize(pcstr _ApplicationName, pcstr commandLine, LogCallback c
 
 #if defined(XR_PLATFORM_WINDOWS)
         GetCurrentDirectory(sizeof(WorkingPath), WorkingPath);
+#elif defined(XR_PLATFORM_SWITCH)
+        // same as ApplicationPath
+        xr_strcpy(WorkingPath, ApplicationPath);
+        Msg("Working path = %s", WorkingPath);
+        chdir(WorkingPath);
 #else
         getcwd(WorkingPath, sizeof(WorkingPath));
 
@@ -267,6 +281,10 @@ void xrCore::Initialize(pcstr _ApplicationName, pcstr commandLine, LogCallback c
 
         DWORD sz_comp = sizeof(CompName);
         GetComputerName(CompName, &sz_comp);
+#elif defined(XR_PLATFORM_SWITCH)
+        // TODO: get real username
+        strcpy(UserName, "Player");
+        strcpy(CompName, "localhost");
 #elif defined(XR_PLATFORM_LINUX)
         uid_t uid = geteuid();
         struct passwd *pw = getpwuid(uid);
@@ -330,7 +348,7 @@ void xrCore::Initialize(pcstr _ApplicationName, pcstr commandLine, LogCallback c
         EFS._initialize();
 #ifdef DEBUG
 #ifndef _EDITOR
-#ifndef XR_PLATFORM_LINUX // FIXME!!!
+#if !defined(XR_PLATFORM_LINUX) && !defined(XR_PLATFORM_SWITCH) // FIXME!!!
         Msg("Process heap 0x%08x", GetProcessHeap());
 #endif
 #endif

@@ -4,6 +4,11 @@
 #ifdef XR_PLATFORM_LINUX
 #include <sys/mman.h>
 #endif
+#ifdef XR_PLATFORM_SWITCH
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#endif
 
 #if defined(XR_PLATFORM_WINDOWS)
 void CStreamReader::construct(const HANDLE& file_mapping_handle, const size_t& start_offset, const size_t& file_size,
@@ -17,7 +22,7 @@ void CStreamReader::construct(const HANDLE& file_mapping_handle, const size_t& s
 
     map(0);
 }
-#elif defined(XR_PLATFORM_LINUX)
+#elif defined(XR_PLATFORM_LINUX) || defined(XR_PLATFORM_SWITCH)
 void CStreamReader::construct(int file_mapping_handle, const size_t& start_offset, const size_t& file_size,
     const size_t& archive_size, const size_t& window_size)
 {
@@ -56,6 +61,10 @@ void CStreamReader::map(const size_t& new_offset)
 #if defined(XR_PLATFORM_WINDOWS)
     m_current_map_view_of_file =
         static_cast<u8*>(MapViewOfFile(m_file_mapping_handle, FILE_MAP_READ, 0, start_offset, m_current_window_size));
+#elif defined(XR_PLATFORM_SWITCH)
+    m_current_map_view_of_file = xr_alloc<u8>(m_current_window_size);
+    ::lseek(m_file_mapping_handle, start_offset, SEEK_SET);
+    ::read(m_file_mapping_handle, m_current_map_view_of_file, m_current_window_size);
 #elif defined(XR_PLATFORM_LINUX)
     m_current_map_view_of_file =
         static_cast<u8*>(::mmap(NULL, m_current_window_size, PROT_READ, MAP_SHARED, m_file_mapping_handle, start_offset));

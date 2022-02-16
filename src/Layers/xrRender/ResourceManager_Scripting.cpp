@@ -25,12 +25,12 @@ class adopt_sampler
     u32 stage;
 
 public:
-    adopt_sampler(CBlender_Compile* _C, u32 _stage) : C(_C), stage(_stage)
+    adopt_sampler(CBlender_Compile* _SC, u32 _stage) : C(_SC), stage(_stage)
     {
         if (u32(-1) == stage)
             C = nullptr;
     }
-    adopt_sampler(const adopt_sampler& _C) : C(_C.C), stage(_C.stage)
+    adopt_sampler(const adopt_sampler& _SC) : C(_SC.C), stage(_SC.stage)
     {
         if (u32(-1) == stage)
             C = nullptr;
@@ -164,8 +164,8 @@ class adopt_compiler
     CBlender_Compile* C;
 
 public:
-    adopt_compiler(CBlender_Compile* _C) : C(_C) {}
-    adopt_compiler(const adopt_compiler& _C) : C(_C.C) {}
+    adopt_compiler(CBlender_Compile* _CC) : C(_CC) {}
+    adopt_compiler(const adopt_compiler& _CC) : C(_CC.C) {}
     adopt_compiler& _options(int P, bool S)
     {
         C->SetParams(P, S);

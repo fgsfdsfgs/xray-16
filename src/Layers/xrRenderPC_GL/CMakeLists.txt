@@ -398,8 +398,16 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_SOURCE_DIR}/Externals/luabind
     ${CMAKE_SOURCE_DIR}/Externals/gli
     ${CMAKE_SOURCE_DIR}/Externals/gli/external/glm
+    ${CMAKE_SOURCE_DIR}/Externals/glad
     ${SDL_INCLUDE_DIRS}
 )
+
+if (NINTENDO_SWITCH)
+    # GL libs are linked to the main executable, as they are static
+    set(GL_LIBS xrGlad)
+else()
+    set(GL_LIBS GL GLEW)
+endif()
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
@@ -409,8 +417,7 @@ target_link_libraries(${PROJECT_NAME}
     xrParticles
     xrScriptEngine
     xrAPI
-    GL
-    GLEW
+    ${GL_LIBS}
     xrLuabind
 )
 

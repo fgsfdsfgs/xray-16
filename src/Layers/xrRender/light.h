@@ -74,21 +74,21 @@ public:
 
     union _xform
     {
-        struct _D
+        struct _SD
         {
             Fmatrix combine;
             s32 minX, maxX;
             s32 minY, maxY;
             BOOL transluent;
         } D;
-        struct _P
+        struct _SP
         {
             Fmatrix world;
             Fmatrix view;
             Fmatrix project;
             Fmatrix combine;
         } P;
-        struct _S
+        struct _SS
         {
             Fmatrix view;
             Fmatrix project;

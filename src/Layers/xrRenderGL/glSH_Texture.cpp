@@ -182,6 +182,7 @@ void CTexture::Load()
         if (!pTheora->Load(fn))
         {
             xr_delete(pTheora);
+            Log("Could not parse Theora file", fn);
             FATAL("Can't open video stream");
         }
         else

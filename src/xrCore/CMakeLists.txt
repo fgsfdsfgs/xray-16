@@ -239,17 +239,25 @@ target_include_directories(${PROJECT_NAME}
     ${JPEG_INCLUDE_DIRS}
 )
 
+if (NINTENDO_SWITCH)
+    set(EXT_LIBRARIES_PUBLIC )
+    set(EXT_LIBRARIES_PRIVATE )
+    set(MIMALLOC_LIBRARIES ) # this is also linked to the main binary
+else()
+    set(EXT_LIBRARIES_PUBLIC ${SDL_LIBRARIES} ${CRYPTO++_LIBRARIES})
+    set(EXT_LIBRARIES_PRIVATE ${JPEG_LIBRARIES} ${LZO_LIBRARIES})
+    set(MIMALLOC_LIBRARIES $<$<STREQUAL:${MEMORY_ALLOCATOR},mimalloc>:mimalloc-static>)
+endif()
+
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
     pthread
-    ${SDL_LIBRARIES}
-    ${CRYPTO++_LIBRARIES}
+    ${EXT_LIBRARIES_PUBLIC}
     PRIVATE
     xrMiscMath
-    dl
-    $<$<STREQUAL:${MEMORY_ALLOCATOR},mimalloc>:mimalloc-static>
-    ${JPEG_LIBRARIES}
-    ${LZO_LIBRARIES}
+    ${DL_LIBRARIES}
+    ${MIMALLOC_LIBRARIES}
+    ${EXT_LIBRARIES_PRIVATE}
 )
 
 target_compile_definitions(${PROJECT_NAME}

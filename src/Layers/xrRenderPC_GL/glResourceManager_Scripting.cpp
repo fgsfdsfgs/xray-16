@@ -34,8 +34,8 @@ class adopt_sampler
     CBlender_Compile* C;
     u32 stage;
 public:
-    adopt_sampler(CBlender_Compile* _C, u32 _stage) : C(_C), stage(_stage) { if (u32(-1) == stage) C = nullptr; }
-    adopt_sampler(const adopt_sampler& _C) : C(_C.C), stage(_C.stage) { if (u32(-1) == stage) C = nullptr; }
+    adopt_sampler(CBlender_Compile* _CC, u32 _stage) : C(_CC), stage(_stage) { if (u32(-1) == stage) C = nullptr; }
+    adopt_sampler(const adopt_sampler& _CC) : C(_CC.C), stage(_CC.stage) { if (u32(-1) == stage) C = nullptr; }
 
     adopt_sampler& _texture(LPCSTR texture)
     {
@@ -179,8 +179,8 @@ class adopt_compiler
     }
 
 public:
-    adopt_compiler(CBlender_Compile* _C, bool& bFirstPass) : C(_C), m_bFirstPass(bFirstPass) { m_bFirstPass = true; }
-    adopt_compiler(const adopt_compiler& _C) : C(_C.C), m_bFirstPass(_C.m_bFirstPass) { }
+    adopt_compiler(CBlender_Compile* _CC, bool& bFirstPass) : C(_CC), m_bFirstPass(bFirstPass) { m_bFirstPass = true; }
+    adopt_compiler(const adopt_compiler& _CC) : C(_CC.C), m_bFirstPass(_CC.m_bFirstPass) { }
 
     adopt_compiler& _options(int P, bool S)
     {

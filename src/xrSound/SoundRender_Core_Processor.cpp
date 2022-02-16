@@ -227,12 +227,12 @@ float CSoundRender_Core::get_occlusion_to(const Fvector& hear_pt, const Fvector&
         geom_DB.ray_options(CDB::OPT_CULL);
         geom_DB.ray_query(geom_SOM, hear_pt, dir, range);
         u32 r_cnt = geom_DB.r_count();
-        CDB::RESULT* _B = geom_DB.r_begin();
+        CDB::RESULT* _RB = geom_DB.r_begin();
         if (0 != r_cnt)
         {
             for (u32 k = 0; k < r_cnt; k++)
             {
-                CDB::RESULT* R = _B + k;
+                CDB::RESULT* R = _RB + k;
                 occ_value *= *(float*)&R->dummy;
             }
         }
@@ -289,12 +289,12 @@ float CSoundRender_Core::get_occlusion(Fvector& P, float R, Fvector* occ)
         geom_DB.ray_options(CDB::OPT_CULL);
         geom_DB.ray_query(geom_SOM, base, dir, range);
         u32 r_cnt = geom_DB.r_count();
-        CDB::RESULT* _B = geom_DB.r_begin();
+        CDB::RESULT* _RB = geom_DB.r_begin();
         if (0 != r_cnt)
         {
             for (u32 k = 0; k < r_cnt; k++)
             {
-                CDB::RESULT* R2 = _B + k;
+                CDB::RESULT* R2 = _RB + k;
                 occ_value *= *(float*)&R2->dummy;
             }
         }

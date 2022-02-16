@@ -202,8 +202,8 @@ struct STranspParam
     collide::ray_cache* pray_cache;
     float vis;
     float vis_threshold;
-    STranspParam(collide::ray_cache* p, const Fvector& _P, const Fvector& _D, float _f, float _vis_threshold)
-        : P(_P), D(_D), f(_f), pray_cache(p), vis(1.f), vis_threshold(_vis_threshold)
+    STranspParam(collide::ray_cache* p, const Fvector& _VP, const Fvector& _D, float _f, float _vis_threshold)
+        : P(_VP), D(_D), f(_f), pray_cache(p), vis(1.f), vis_threshold(_vis_threshold)
     {
     }
 };

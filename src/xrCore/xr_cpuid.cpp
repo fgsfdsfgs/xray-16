@@ -7,6 +7,12 @@
 #include <cpuid.h>
 #endif
 
+#if defined(XR_PLATFORM_SWITCH)
+extern "C" {
+#include <switch/kernel/svc.h>
+}
+#endif
+
 #include <array>
 #include <bitset>
 #include <memory>
@@ -29,7 +35,7 @@ void nativeCpuId(int regs[4], int i)
 {
 #ifdef XR_PLATFORM_WINDOWS
     __cpuid((int *)regs, (int)i);
-#elif (defined(XR_PLATFORM_LINUX) || defined(XR_PLATFORM_FREEBSD)) && defined(XR_COMPILER_GCC)
+#elif (defined(XR_PLATFORM_LINUX) || defined(XR_PLATFORM_FREEBSD) || defined(XR_PLATFORM_SWITCH)) && defined(XR_COMPILER_GCC)
 #if defined(XR_ARCHITECTURE_X86) || defined(XR_ARCHITECTURE_X64)
 	__cpuid((int)i, regs[0], regs[1], regs[2], regs[3]);
 #elif defined(XR_ARCHITECTURE_ARM) || defined(XR_ARCHITECTURE_ARM64)
@@ -88,6 +94,10 @@ void fillInAvailableCpus(processor_info* pinfo)
     CPU_ZERO(&my_set);
     pthread_getaffinity_np(pthread_self(), sizeof(cpu_set_t), &my_set);
     pa_mask_save = CPU_COUNT(&my_set);
+#elif defined(XR_PLATFORM_SWITCH)
+    u64 nx_core_mask = 0;
+    svcGetInfo(&nx_core_mask, InfoType_CoreMask, CUR_PROCESS_HANDLE, 0);
+    u32 pa_mask_save = (u32)nx_core_mask;
 #else
 #pragma TODO("No function to obtain process affinity")
     u32 pa_mask_save = 0;
@@ -125,6 +135,10 @@ void fillInAvailableCpus(processor_info* pinfo)
 #elif defined(XR_PLATFORM_LINUX) || defined(XR_PLATFORM_FREEBSD)
     processorCoreCount = sysconf(_SC_NPROCESSORS_ONLN);
     logicalProcessorCount = std::thread::hardware_concurrency();
+#elif defined(XR_PLATFORM_SWITCH)
+    // one core is reserved
+    processorCoreCount = 3;
+    logicalProcessorCount = 3;
 #else
 #pragma TODO("No function to obtain processor's core count")
     logicalProcessorCount = std::thread::hardware_concurrency();

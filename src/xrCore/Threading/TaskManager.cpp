@@ -113,7 +113,8 @@ public:
     void push(Task* task)
     {
         const auto task_pos = m_tail_pos.fetch_add(1, std::memory_order_relaxed);
-        VERIFY2(task_pos - m_head_pos.load(std::memory_order_relaxed) < TASK_STORAGE_SIZE, "Task queue overflow");
+        const auto head_pos = m_head_pos.load(std::memory_order_relaxed);
+        VERIFY2(task_pos - head_pos < TASK_STORAGE_SIZE, "Task queue overflow");
         m_storage[task_pos & TASK_STORAGE_MASK] = task;
     }
 

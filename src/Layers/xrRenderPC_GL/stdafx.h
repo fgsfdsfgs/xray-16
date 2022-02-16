@@ -14,11 +14,15 @@
 
 #include "xrParticles/psystem.h"
 
+#ifdef USE_GLAD
+#include <xrGlad.h>
+#else
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include "SDL_opengl.h"
 #include <GL/glu.h>
 #include "SDL_opengl_glext.h"
+#endif
 
 #include "Layers/xrRenderGL/CommonTypes.h"
 

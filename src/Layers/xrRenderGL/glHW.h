@@ -5,6 +5,12 @@
 #include "SDL.h"
 #include "SDL_syswm.h"
 
+#ifdef USE_GLAD
+#define GLEXT_SUPPORTED(x) (GLAD_ ## x)
+#else
+#define GLEXT_SUPPORTED(x) (glewIsSupported(#x))
+#endif
+
 class CHW
     : public pureAppActivate,
       public pureAppDeactivate

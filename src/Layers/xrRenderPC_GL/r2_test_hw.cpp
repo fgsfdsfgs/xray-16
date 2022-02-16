@@ -43,13 +43,19 @@ bool TestOpenGLSupport()
     if (!windowTest.successful())
         return false;
 
+#ifdef USE_GLAD
+    // initialize glad
+    if (!gladLoadGLLoader(SDL_GL_GetProcAddress))
+#else
+    // Initialize OpenGL Extension Wrangler
     if (glewInit() != GLEW_OK)
+#endif
     {
         Log("~ Could not initialize glew.");
         return false;
     }
 
-    if (!glewIsSupported("GL_ARB_separate_shader_objects"))
+    if (!GLEXT_SUPPORTED(GL_ARB_separate_shader_objects))
     {
         Log("~ GL_ARB_separate_shader_objects not supported");
         return false;

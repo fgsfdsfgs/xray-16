@@ -203,6 +203,8 @@ void CRenderDevice::SelectResolution(const bool windowed)
 
     dwWidth = psDeviceMode.Width;
     dwHeight = psDeviceMode.Height;
+
+    Msg("SelectResolution(): picked %ux%u@%u %c", dwWidth, dwHeight, psDeviceMode.RefreshRate, windowed ? 'w' : 'f');
 }
 
 SDL_Window* CRenderDevice::GetApplicationWindow()

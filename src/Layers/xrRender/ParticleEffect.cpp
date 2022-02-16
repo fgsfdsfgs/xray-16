@@ -14,7 +14,7 @@
 #endif
 #endif
 
-#if defined(XR_PLATFORM_LINUX)
+#if defined(XR_PLATFORM_LINUX) || defined(XR_PLATFORM_SWITCH)
 #include <math.h>
 #endif
 

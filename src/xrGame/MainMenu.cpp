@@ -964,7 +964,7 @@ void CMainMenu::OnDownloadMPMap(CUIWindow* w, void* d)
     LPCSTR params = NULL;
     STRCONCAT(params, "/C start ", url);
     ShellExecute(0, "open", "cmd.exe", params, NULL, SW_SHOW);
-#else
+#elif !defined(XR_PLATFORM_SWITCH)
     std::string command = "xdg-open " + std::string{url};
     system(command.c_str());
 #endif

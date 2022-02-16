@@ -170,6 +170,12 @@ group_sources(SRC_FILES)
 
 add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
 
+if (NINTENDO_SWITCH)
+    set(EXT_INCLUDES "$ENV{DEVKITPRO}/portlibs/switch/include")
+else()
+    set(EXT_INCLUDES )
+endif()
+
 target_include_directories(${PROJECT_NAME}
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -177,7 +183,14 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_SOURCE_DIR}/Externals/OpenAutomate/inc
     ${CMAKE_SOURCE_DIR}/Externals/luabind
     ${SDL_INCLUDE_DIRS}
+    ${EXT_INCLUDES}
 )
+
+if (NINTENDO_SWITCH)
+    set(EXT_LIBRARIES )
+else()
+    set(EXT_LIBRARIES ${THEORA_LIBRARY} ${OGG_LIBRARIES} openal ${SDL_LIBRARIES})
+endif()
 
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
@@ -190,11 +203,8 @@ target_link_libraries(${PROJECT_NAME}
     xrScriptEngine
     xrNetServer
     ${LUA_LIBRARIES}
-    ${THEORA_LIBRARY}
-    ${OGG_LIBRARIES}
     xrCDB
-    openal
-    ${SDL_LIBRARIES}
+    ${EXT_LIBRARIES}
 )
 
 target_compile_definitions(${PROJECT_NAME}

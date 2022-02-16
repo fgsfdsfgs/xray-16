@@ -25,7 +25,7 @@
 
 #include "objects.h"
 #include "float.h"
-#if defined(XR_PLATFORM_LINUX)
+#if defined(XR_PLATFORM_LINUX) || defined(XR_PLATFORM_SWITCH)
 #include <cmath>
 #endif
 
@@ -47,7 +47,7 @@ inline bool dValid(const float x)
     int cls = _fpclass (double(x));
     if (cls&(_FPCLASS_SNAN+_FPCLASS_QNAN+_FPCLASS_NINF+_FPCLASS_PINF+_FPCLASS_ND+_FPCLASS_PD))
        return false;
-#elif defined(XR_PLATFORM_LINUX)
+#elif defined(XR_PLATFORM_LINUX) || defined(XR_PLATFORM_SWITCH)
 	int cls = std::fpclassify((double )x);
     switch (cls)
     {

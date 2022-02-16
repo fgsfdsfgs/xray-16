@@ -60,14 +60,28 @@ endif()
 
 option(USE_CRYPTOPP "Use Crypto++ Library (REQUIRED FOR MULTIPLAYER)" OFF)
 
+if (NINTENDO_SWITCH)
+    set(MEMORY_ALLOCATOR_DEFAULT_VALUE "standard")
+else()
+    set(MEMORY_ALLOCATOR_DEFAULT_VALUE "mimalloc")
+endif()
+
 # Memory allocator option
-set(MEMORY_ALLOCATOR "mimalloc" CACHE STRING "Use specific memory allocator (mimalloc/standard)")
+set(MEMORY_ALLOCATOR ${MEMORY_ALLOCATOR_DEFAULT_VALUE} CACHE STRING "Use specific memory allocator (mimalloc/standard)")
 message("Using ${MEMORY_ALLOCATOR} memory allocator")
 if (MEMORY_ALLOCATOR STREQUAL "mimalloc")
     add_definitions(-DUSE_MIMALLOC)
 else()
     add_definitions(-DUSE_PURE_ALLOC)
 endif()
+
+if (NINTENDO_SWITCH)
+    set(USE_EXTERNAL_LUAJIT_DEFAULT_VALUE ON)
+else()
+    set(USE_EXTERNAL_LUAJIT_DEFAULT_VALUE OFF)
+endif()
+
+option(USE_EXTERNAL_LUAJIT "Use external LuaJIT library" ${USE_EXTERNAL_LUAJIT_DEFAULT_VALUE})
 
 function(xr_install tgt)
     if (NOT MSVC)
@@ -141,7 +155,10 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     endif()
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes -Wl,--no-undefined -fvisibility=hidden")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes -fvisibility=hidden")
+if (NOT NINTENDO_SWITCH) # undefined symbols are bad, but on the switch we have to deal with it
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--no-undefined")
+endif()
 
 #set(SANITIZE_FLAGS "-fsanitize=address  -fsanitize=leak -fno-omit-frame-pointer -g -fsanitize=undefined -fno-sanitize=vptr")
 #if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -153,7 +170,26 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${SANITIZE_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${SANITIZE_FLAGS}")
 set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${SANITIZE_FLAGS}")
 
-set(LUA_LIBRARIES xrLuajit)
+if (USE_EXTERNAL_LUAJIT)
+    if (NOT DEFINED LUA_LIBRARIES)
+        # no LuaJIT path specified; try to find it in default search paths
+        find_library(
+            LUA_LIBRARIES
+            NAMES luajit luajit-5.1 libluajit-5.1.so.2
+            PATHS "${CMAKE_SOURCE_DIR}/Externals/LuaJIT/src" "${CMAKE_SOURCE_DIR}/Externals/LuaJIT"
+            CMAKE_FIND_ROOT_PATH_BOTH
+        )
+        message("External LuaJIT: ${LUA_LIBRARIES}")
+    endif()
+else()
+    set(LUA_LIBRARIES xrLuajit)
+endif()
+
+if (NINTENDO_SWITCH)
+    set(DL_LIBRARIES "") # libsolder is explicitly linked to xr_3da
+else()
+    set(DL_LIBRARIES "dl")
+endif()
 
 if (PROJECT_PLATFORM_ARM)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfpu=neon")
@@ -168,8 +204,10 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpmath=sse -msse3")
 endif()
 
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold")
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=gold")
+if (NOT NINTENDO_SWITCH)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=gold")
+endif()
 
 if (USE_CRYPTOPP)
     add_definitions(-DUSE_CRYPTOPP)
@@ -178,7 +216,11 @@ endif()
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DDEBUG -DMIXED)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Og")
-    set(LUA_LIBRARIES xrLuajit-debug)
+    if (NOT USE_EXTERNAL_LUAJIT)
+        set(LUA_LIBRARIES xrLuajit-debug)
+    endif()
+else()
+    add_definitions(-DNDEBUG)
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -202,7 +244,11 @@ endif()
 set(LUA_INCLUDE_DIR Externals/LuaJIT/src)
 
 if (NOT WIN32)
-    find_package(GLEW REQUIRED)
+    if (NINTENDO_SWITCH)
+        add_definitions(-DUSE_GLAD)
+    else()
+        find_package(GLEW REQUIRED)
+    endif()
     find_package(OpenAL REQUIRED)
     if (USE_CRYPTOPP)
         find_package(Crypto++ REQUIRED)
@@ -216,6 +262,17 @@ endif()
 
 # XXX: move to LuaJIT
 include_directories(${LUA_INCLUDE_DIR})
+
+if (NINTENDO_SWITCH)
+    set(CMAKE_CXX_EXTENSIONS ON)
+    set(CMAKE_DISABLE_PRECOMPILE_HEADERS ON)
+    add_definitions(-D__SWITCH__)
+    include_directories("$ENV{DEVKITPRO}/libnx/include")
+    # enabling this globally kills some things that use local libraries
+    # include_directories("$ENV{DEVKITPRO}/portlibs/switch/include")
+    # enable "fake" dynamic linking
+    include("${DEVKITPRO}/portlibs/switch/share/SolderShim.cmake")
+endif()
 
 execute_process(COMMAND git rev-parse --verify HEAD
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
