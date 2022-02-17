@@ -184,7 +184,9 @@ public:
     {
         int result = 0;
 
-        //if (g_LuaDebug.test(1) || message == LuaMessageType::Error)
+#ifdef XR_PLATFORM_SWITCH // prevent log spam; IO is heavy
+        if (g_LuaDebug.test(1) || message == LuaMessageType::Error)
+#endif
         {
             string4096 log;
             result = xr_sprintf(log, format, std::forward<Args>(args)...);
